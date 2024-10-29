@@ -1,5 +1,6 @@
 package com.yesol.devlab.excelReader;
 
+import com.yesol.devlab.vo.Users;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -8,11 +9,18 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
 @Component
 public class ExcelReader {
-    public String readExcel() throws IOException {
+    public List<Users> readExcel() throws IOException {
+
+        //읽어들일 엑셀 경로
         String filePath = "C:/Temp/excelUpload/test.xlsx";
+        
+        //엑셀의 user arrayList로 리턴
+        List<Users> usersList = new ArrayList<>();
 
         try(
                 FileInputStream fis = new FileInputStream(new File(filePath));
@@ -20,36 +28,47 @@ public class ExcelReader {
 
                 Sheet sheet = workbook.getSheetAt(0);
 
+
+
                 for (Row row : sheet) {
+
+                    //인덱스인 첫째 줄은 무시
+                    if(row.getRowNum() == 0){continue;}
+
+                    Users users = new Users();
+
                     for (Cell cell : row) {
-                        // 셀의 타입에 따라 값을 다르게 가져오기
-                        switch (cell.getCellType()) {
-                            case STRING:
-                                System.out.print(cell.getStringCellValue() + "\t");
+
+                        // 컬럼별로 users 에 값 세팅
+                        switch (cell.getColumnIndex()) {
+                            case 0:
+                                users.setUser_id(cell.getStringCellValue());
                                 break;
-                            case NUMERIC:
-                                System.out.print(cell.getNumericCellValue() + "\t");
+                            case 1:
+                                users.setPassword(String.valueOf(cell.getNumericCellValue()));
                                 break;
-                            case BOOLEAN:
-                                System.out.print(cell.getBooleanCellValue() + "\t");
+                            case 2:
+                                users.setName(cell.getStringCellValue());
                                 break;
-                            case FORMULA:
-                                System.out.print(cell.getCellFormula() + "\t");
+                            case 3:
+                                users.setEmail(cell.getStringCellValue());
                                 break;
                             default:
-                                System.out.print("Unknown Cell Type\t");
+                                System.out.print("Error : Unknown Cell Type\t");
                         }
-
-
                     }
-                    System.out.println(); // 한 행이 끝날 때 줄 바꿈
+                    usersList.add(users);
                 }
 
+                for ( Users users:usersList ) {
+                    //System.out.println(users.toString());
+                }
 
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
-        }catch(Exception e){}
-
-        return null;
+        return usersList;
     }
 
 }
