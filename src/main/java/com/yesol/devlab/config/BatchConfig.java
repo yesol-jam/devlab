@@ -7,7 +7,11 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
@@ -20,35 +24,34 @@ import java.util.List;
 
 @Configuration
 public class BatchConfig {
-    private final JobBuilderFactory jobBuilderFactory;
-    private final StepBuilderFactory stepBuilderFactory;
+    //private final JobBuilderFactory jobBuilderFactory;
+    //private final StepBuilderFactory stepBuilderFactory;
     private final UsersRepository usersRepository; // JPA Repository
     private final PlatformTransactionManager transactionManager;
     private final ExcelReader excelReader;
 
-    public BatchConfig(JobBuilderFactory jobBuilderFactory,
-                       StepBuilderFactory stepBuilderFactory,
+    public BatchConfig(//JobBuilderFactory jobBuilderFactory,
+                       //StepBuilderFactory stepBuilderFactory,
                        UsersRepository usersRepository,
                        PlatformTransactionManager transactionManager, ExcelReader excelReader) {
-        this.jobBuilderFactory = jobBuilderFactory;
-        this.stepBuilderFactory = stepBuilderFactory;
+        //this.jobBuilderFactory = jobBuilderFactory;
+        //this.stepBuilderFactory = stepBuilderFactory;
         this.usersRepository = usersRepository;
         this.transactionManager = transactionManager;
         this.excelReader = excelReader;
     }
 
     @Bean
-    public Job importUserJob() throws IOException {
-        return jobBuilderFactory.get("importUserJob")
+    public Job importUserJob(JobRepository jobRepository) throws IOException {
+        return new JobBuilder("importUserJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(importUserStep())
                 .end()
                 .build();
     }
-
     @Bean
-    public Step importUserStep() throws IOException {
-        return stepBuilderFactory.get("importUserStep")
+    public Step importUserStep(JobRepository jobRepository, Tasklet myTasklet, PlatformTransactionManager transactionManager) throws IOException {
+        return new StepBuilder("myStep", jobRepository)
                 .<Users, Users>chunk(10) // 청크 사이즈를 10으로 설정
                 .reader(excelReader()) // 엑셀 리더
                 .processor(excelProcessor()) // 데이터 프로세서
