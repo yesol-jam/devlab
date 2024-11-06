@@ -5,8 +5,6 @@ import com.yesol.devlab.repository.UsersRepository;
 import com.yesol.devlab.vo.Users;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -24,8 +22,11 @@ import java.util.List;
 
 @Configuration
 public class BatchConfig {
+    
     //private final JobBuilderFactory jobBuilderFactory;
     //private final StepBuilderFactory stepBuilderFactory;
+    
+    /* 오류 폭발로 일단 막아놓음
     private final UsersRepository usersRepository; // JPA Repository
     private final PlatformTransactionManager transactionManager;
     private final ExcelReader excelReader;
@@ -79,6 +80,6 @@ public class BatchConfig {
         return users -> {
             usersRepository.saveAll(users); // DB에 저장
         };
-    }
+    }*/
 
 }
